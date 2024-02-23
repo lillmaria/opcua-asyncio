@@ -495,6 +495,18 @@ class UaProcessor:
                 _logger.info("sending set publishing mode response")
                 self.send_response(requesthdr.RequestHandle, seqhdr, response)
 
+            elif typeid == ua.NodeId(ua.ObjectIds.TransferSubscriptionsRequest_Encoding_DefaultBinary):
+                _logger.warning("handeling transfer subscriptions response")
+                params = struct_from_binary(ua.TransferSubscriptionsParameters, body)
+                response = ua.TransferSubscriptionsResponse()
+                results = ua.TransferSubscriptionsResult()
+                ids = params.SubscriptionIds
+                statuses = [ua.StatusCode(ua.StatusCodes.Bad) for node_id in ids]
+                results.Results = statuses
+                response.Parameters = results
+                _logger.warning("sending transfer subscriptions response")
+                self.send_response(requesthdr.RequestHandle, seqhdr, response)
+
             else:
                 _logger.warning("Unknown message received %s (%s)", typeid, user)
                 raise ServiceError(ua.StatusCodes.BadServiceUnsupported)
